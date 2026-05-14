@@ -1,0 +1,16 @@
+[package]
+name = "discrete-log-research"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = { version = "0.10.1", features = ["sys_rng"] }
+group = {  version = "0.14.0-pre.0", package = "rustcrypto-group" }
+ff = { version = "0.14.0-pre.0", package = "rustcrypto-ff", features = ["bitvec"]}
+subtle = {  version = "2.6.1", features = ["const-generics"] }
+num-integer = { version = "0.1.46" }
+
+[dev-dependencies]
+statrs = {  version = "0.18.0", default-features = false }
+rand_distr = { version = "0.6.0" }
+k256 = {  version = "0.14.0-rc.9", features = ["arithmetic", "expose-field"] }
