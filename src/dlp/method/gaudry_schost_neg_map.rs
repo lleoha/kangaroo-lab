@@ -1,9 +1,15 @@
 use crate::dlp::{DiscreteLogSolver, Solution};
 use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub struct GaudrySchostNegationMapIdeal;
+
+impl Default for GaudrySchostNegationMapIdeal {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl GaudrySchostNegationMapIdeal {
     pub fn new() -> Self {

@@ -1,9 +1,15 @@
 use crate::dlp::{DiscreteLogSolver, Solution};
 use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub struct RetiredCoderSotaV2Ideal;
+
+impl Default for RetiredCoderSotaV2Ideal {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl RetiredCoderSotaV2Ideal {
     pub fn new() -> Self {
@@ -32,7 +38,7 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
-            let mut tame_distance = rng.random_range((-n_half / 256..n_half / 256));
+            let mut tame_distance = rng.random_range(-n_half / 256..n_half / 256 );
             let mut tame = generator_scalar_mul_i64::<G>(tame_distance);
             if !tame.is_negation_map_representative() {
                 (tame_distance, tame) = (-tame_distance, -tame);
@@ -63,8 +69,8 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
                         Solution::new(-discrete_log, group_ops)
                     };
                 }
-                if let Some(&wild2_distance) = wilds.get(&wild) {
-                    if wild_distance != wild2_distance && wild_distance != -wild2_distance {
+                if let Some(&wild2_distance) = wilds.get(&wild)
+                    && wild_distance != wild2_distance && wild_distance != -wild2_distance {
                         let discrete_log = Self::collision_w1w2(wild_distance, wild2_distance);
                         return if generator_scalar_mul_i64::<G>(discrete_log) == element {
                             Solution::new(discrete_log, group_ops)
@@ -72,7 +78,6 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
                             Solution::new(-discrete_log, group_ops)
                         };
                     }
-                }
                 wilds.insert(wild, wild_distance);
             }
         }

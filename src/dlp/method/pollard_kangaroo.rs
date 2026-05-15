@@ -8,14 +8,12 @@ use rand::Rng;
 
 pub struct PollardKangarooSolver {
     bucket_bits: u32,
-    dp_bits: u32,
 }
 
 impl PollardKangarooSolver {
-    pub fn new(bucket_bits: u32, dp_bits: u32) -> Self {
+    pub fn new(bucket_bits: u32) -> Self {
         PollardKangarooSolver {
             bucket_bits,
-            dp_bits,
         }
     }
 
@@ -90,14 +88,13 @@ mod tests {
     fn solves_toy_group_interval_32_bits() -> Result<(), Box<dyn Error>> {
         const N_BITS: u32 = 48;
         const BUCKET_BITS: u32 = 8;
-        const DP_BITS: u32 = 4;
 
         let mut rng = Xoshiro256PlusPlus::try_from_rng(&mut SysRng)?;
         let low = rng.random_range(-(1 << 32)..(1 << 32));
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = PollardKangarooSolver::new(BUCKET_BITS, DP_BITS);
+        let solver = PollardKangarooSolver::new(BUCKET_BITS);
 
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);

@@ -70,7 +70,7 @@ impl SampleCollector {
         sorted.sort_by(f64::total_cmp);
 
         let mid = sorted.len() / 2;
-        if sorted.len() % 2 == 0 {
+        if sorted.len().is_multiple_of(2) {
             Self::midpoint(sorted[mid - 1], sorted[mid])
         } else {
             sorted[mid]
