@@ -34,6 +34,7 @@ impl ToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         let v = self.0 + rhs.0;
         if v >= Self::MODULUS {
@@ -44,6 +45,7 @@ impl ToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, rhs: Self) -> Self {
         if self.0 >= rhs.0 {
             ToyScalar(self.0 - rhs.0)
@@ -53,6 +55,7 @@ impl ToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn mul(self, rhs: Self) -> Self {
         let mut v = self.0 as u128 * rhs.0 as u128;
         v = (v >> 63) * (Self::C as u128) + (v & ((1 << 63) - 1));
@@ -331,16 +334,19 @@ impl ToyGroup {
     const FOOTPRINT_DST: u64 = u64::from_le_bytes(*b"FUTPRINT");
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         ToyGroup(self.0 + rhs.0)
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, rhs: Self) -> Self {
         ToyGroup(self.0 - rhs.0)
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn neg(self) -> Self {
         ToyGroup(-self.0)
     }
@@ -377,7 +383,7 @@ impl ToyGroup {
     }
 
     pub fn digest(&self, dst: u64) -> u64 {
-        let mut x = self.0.0 ^ dst;
+        let mut x = (self.0).0 ^ dst;
         x ^= x >> 30;
         x = x.wrapping_mul(0xbf58476d1ce4e5b9);
         x ^= x >> 27;

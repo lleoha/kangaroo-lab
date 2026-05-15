@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use rand::{Rng, RngExt};
-use crate::group::helpers::generator_scalar_mul_i64;
+use crate::group::generator_scalar_mul_i64;
 use crate::group::KangarooGroup;
 
 pub const DEFAULT_GS_COUNT: u64 = 4096;
@@ -185,8 +185,8 @@ mod tests {
 //     pub fn simulate(&self, range_bits: u32, rng: &mut impl Rng) -> u64 {
 //         let n = 1i64 << range_bits;
 //         let half_n = n / 2;
-//         let dlog = rng.random_range(-half_n..half_n);
-//         let h = ToyGroup::mul_by_generator(dlog);
+//         let dlp = rng.random_range(-half_n..half_n);
+//         let h = ToyGroup::mul_by_generator(dlp);
 //
 //         let wild_bound = half_n;
 //         let tame_bound = ((half_n as f64) * self.gamma).ceil() as i64;

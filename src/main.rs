@@ -1,10 +1,10 @@
-// use crate::dlog::gs_optimizer::{optimize_gs_gamma, GsOptimizerConfig};
+// use crate::dlp::gs_optimizer::{optimize_gs_gamma, GsOptimizerConfig};
 
 use std::io::{Write, stdout};
 use std::thread::sleep;
 use std::time::Duration;
 
-pub mod dlog;
+pub mod dlp;
 pub mod group;
 
 // const FOOTPRINT_DST: u64 = u64::from_le_bytes(*b"FOTPRINT");

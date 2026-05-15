@@ -6,7 +6,7 @@ pub fn generate_uniform_jump_table_distances(
     bucket_bits: u32,
     rng: &mut impl Rng,
 ) -> Vec<i64> {
-    let table_size = 1usize << bucket_bits;
+    let table_size = 1 << bucket_bits;
     let low = 1;
     let high = (2. * mean).ceil() as i64;
     let expected_sum = (mean * table_size as f64).round() as i64;
@@ -71,7 +71,7 @@ pub fn generate_uniform_jump_table_distances(
 //     use rand::rngs::Xoshiro256PlusPlus;
 //     use rand::SeedableRng;
 //     use statrs::assert_almost_eq;
-//     use crate::dlog::stats::RunningStats;
+//     use crate::dlp::stats::RunningStats;
 //     use super::*;
 //
 //     #[test]

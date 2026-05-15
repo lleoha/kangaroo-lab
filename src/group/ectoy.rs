@@ -35,6 +35,7 @@ impl ECToyField {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         let v = self.0 + rhs.0;
         if v >= Self::MODULUS {
@@ -45,6 +46,7 @@ impl ECToyField {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, rhs: Self) -> Self {
         if self.0 >= rhs.0 {
             ECToyField(self.0 - rhs.0)
@@ -54,6 +56,7 @@ impl ECToyField {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn mul(self, rhs: Self) -> Self {
         let mut v = self.0 as u128 * rhs.0 as u128;
         v = (v >> 63) * (Self::C as u128) + (v & ((1 << 63) - 1));
@@ -342,6 +345,7 @@ impl ECToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         let v = self.0 + rhs.0;
         if v >= Self::MODULUS {
@@ -352,6 +356,7 @@ impl ECToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, rhs: Self) -> Self {
         if self.0 >= rhs.0 {
             ECToyScalar(self.0 - rhs.0)
@@ -361,6 +366,7 @@ impl ECToyScalar {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn mul(self, rhs: Self) -> Self {
         let mut v = self.0 as u128 * rhs.0 as u128;
         v = (v >> 63) * (Self::C as u128) + (v & ((1 << 63) - 1));
@@ -663,6 +669,7 @@ impl ECToyGroup {
         self.y.square() == self.x.square() * self.x + Self::B
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         if self.is_identity() {
             return rhs;
@@ -683,10 +690,12 @@ impl ECToyGroup {
         ECToyGroup { x, y }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn sub(self, rhs: Self) -> Self {
         self + (-rhs)
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn neg(self) -> Self {
         ECToyGroup {
             x: self.x,
