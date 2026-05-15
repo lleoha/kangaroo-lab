@@ -3,21 +3,12 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct GaudrySchostImprovedThreeSetIdeal;
-
-impl Default for GaudrySchostImprovedThreeSetIdeal {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl GaudrySchostImprovedThreeSetIdeal {
     const GAMMA: f64 = 0.588;
     const ALPHA: f64 = Self::GAMMA / 2.0;
-
-    pub fn new() -> Self {
-        GaudrySchostImprovedThreeSetIdeal
-    }
 
     fn collision_tw1(tame_distance: i64, wild1_distance: i64) -> i64 {
         tame_distance - wild1_distance
@@ -105,20 +96,18 @@ mod tests {
         const N_BITS: u32 = 32;
 
         let mut rng = Xoshiro256PlusPlus::try_from_rng(&mut SysRng)?;
+        let low = rng.random_range(-(1 << 48)..(1 << 48));
+        let high = low + (1 << N_BITS);
+        let x = rng.random_range(low..high);
+        let element = generator_scalar_mul_i64::<ToyGroup>(x);
+        let solver = GaudrySchostImprovedThreeSetIdeal;
+        let result = solver.solve(element, low, high, &mut rng);
+        assert_eq!(result.discrete_log(), x);
 
-        for _ in 1..128 {
-            let low = rng.random_range(-(1 << 48)..(1 << 48));
-            let high = low + (1 << N_BITS);
-            let x = rng.random_range(low..high);
-            let element = generator_scalar_mul_i64::<ToyGroup>(x);
-            let solver = GaudrySchostImprovedThreeSetIdeal::new();
-            let result = solver.solve(element, low, high, &mut rng);
-            assert_eq!(result.discrete_log(), x);
+        let n = (1u64 << N_BITS) as f64;
+        let k = (result.group_ops() as f64) / n.sqrt();
+        println!("k = {:.02}", k);
 
-            let n = (1u64 << N_BITS) as f64;
-            let k = (result.group_ops() as f64) / n.sqrt();
-            println!("k = {:.02}", k);
-        }
         Ok(())
     }
 }

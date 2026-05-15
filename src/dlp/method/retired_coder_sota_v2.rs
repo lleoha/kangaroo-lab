@@ -3,20 +3,11 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct RetiredCoderSotaV2Ideal;
 
-impl Default for RetiredCoderSotaV2Ideal {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RetiredCoderSotaV2Ideal {
-    pub fn new() -> Self {
-        RetiredCoderSotaV2Ideal
-    }
-
-    fn colision_tw(tame_distance: i64, wild_distance: i64) -> i64 {
+    fn collision_tw(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
 
@@ -38,14 +29,14 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
-            let mut tame_distance = rng.random_range(-n_half / 256..n_half / 256 );
+            let mut tame_distance = rng.random_range(-n_half / 256..n_half / 256);
             let mut tame = generator_scalar_mul_i64::<G>(tame_distance);
             if !tame.is_negation_map_representative() {
                 (tame_distance, tame) = (-tame_distance, -tame);
             }
             group_ops += 1;
             if let Some(&wild_distance) = wilds.get(&tame) {
-                let discrete_log = Self::colision_tw(tame_distance, wild_distance);
+                let discrete_log = Self::collision_tw(tame_distance, wild_distance);
                 return if generator_scalar_mul_i64::<G>(discrete_log) == element {
                     Solution::new(discrete_log, group_ops)
                 } else {
@@ -62,7 +53,7 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
                 }
                 group_ops += 1;
                 if let Some(&tame_distance) = tames.get(&wild) {
-                    let discrete_log = Self::colision_tw(tame_distance, wild_distance);
+                    let discrete_log = Self::collision_tw(tame_distance, wild_distance);
                     return if generator_scalar_mul_i64::<G>(discrete_log) == element {
                         Solution::new(discrete_log, group_ops)
                     } else {
@@ -70,14 +61,16 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
                     };
                 }
                 if let Some(&wild2_distance) = wilds.get(&wild)
-                    && wild_distance != wild2_distance && wild_distance != -wild2_distance {
-                        let discrete_log = Self::collision_w1w2(wild_distance, wild2_distance);
-                        return if generator_scalar_mul_i64::<G>(discrete_log) == element {
-                            Solution::new(discrete_log, group_ops)
-                        } else {
-                            Solution::new(-discrete_log, group_ops)
-                        };
-                    }
+                    && wild_distance != wild2_distance
+                    && wild_distance != -wild2_distance
+                {
+                    let discrete_log = Self::collision_w1w2(wild_distance, wild2_distance);
+                    return if generator_scalar_mul_i64::<G>(discrete_log) == element {
+                        Solution::new(discrete_log, group_ops)
+                    } else {
+                        Solution::new(-discrete_log, group_ops)
+                    };
+                }
                 wilds.insert(wild, wild_distance);
             }
         }
@@ -94,23 +87,21 @@ mod tests {
 
     #[test]
     fn solves_toy_group_interval_32_bits() -> Result<(), Box<dyn Error>> {
-        const N_BITS: u32 = 48;
+        const N_BITS: u32 = 32;
 
         let mut rng = Xoshiro256PlusPlus::try_from_rng(&mut SysRng)?;
+        let low = rng.random_range(-(1 << 48)..(1 << 48));
+        let high = low + (1 << N_BITS);
+        let x = rng.random_range(low..high);
+        let element = generator_scalar_mul_i64::<ToyGroup>(x);
+        let solver = RetiredCoderSotaV2Ideal;
+        let result = solver.solve(element, low, high, &mut rng);
+        assert_eq!(result.discrete_log(), x);
 
-        for _ in 0..1 {
-            let low = rng.random_range(-(1 << 48)..(1 << 48));
-            let high = low + (1 << N_BITS);
-            let x = rng.random_range(low..high);
-            let element = generator_scalar_mul_i64::<ToyGroup>(x);
-            let solver = RetiredCoderSotaV2Ideal::new();
-            let result = solver.solve(element, low, high, &mut rng);
-            assert_eq!(result.discrete_log(), x);
+        let n = (1u64 << N_BITS) as f64;
+        let k = (result.group_ops() as f64) / n.sqrt();
+        println!("k = {:.02}", k);
 
-            let n = (1u64 << N_BITS) as f64;
-            let k = (result.group_ops() as f64) / n.sqrt();
-            println!("k = {:.02}", k);
-        }
         Ok(())
     }
 }

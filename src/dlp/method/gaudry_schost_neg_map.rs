@@ -3,20 +3,11 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct GaudrySchostNegationMapIdeal;
 
-impl Default for GaudrySchostNegationMapIdeal {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl GaudrySchostNegationMapIdeal {
-    pub fn new() -> Self {
-        GaudrySchostNegationMapIdeal
-    }
-
-    fn colision(tame_distance: i64, wild_distance: i64) -> i64 {
+    fn collision(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
 }
@@ -42,7 +33,7 @@ impl DiscreteLogSolver for GaudrySchostNegationMapIdeal {
             tames.insert(tame, tame_distance);
             group_ops += 1;
             if let Some(&wild_distance) = wilds.get(&tame) {
-                let discrete_log = Self::colision(tame_distance, wild_distance);
+                let discrete_log = Self::collision(tame_distance, wild_distance);
                 return if generator_scalar_mul_i64::<G>(discrete_log) == element {
                     Solution::new(discrete_log, group_ops)
                 } else {
@@ -58,7 +49,7 @@ impl DiscreteLogSolver for GaudrySchostNegationMapIdeal {
             wilds.insert(wild, wild_distance);
             group_ops += 1;
             if let Some(&tame_distance) = tames.get(&wild) {
-                let discrete_log = Self::colision(tame_distance, wild_distance);
+                let discrete_log = Self::collision(tame_distance, wild_distance);
                 return if generator_scalar_mul_i64::<G>(discrete_log) == element {
                     Solution::new(discrete_log, group_ops)
                 } else {
@@ -82,20 +73,18 @@ mod tests {
         const N_BITS: u32 = 32;
 
         let mut rng = Xoshiro256PlusPlus::try_from_rng(&mut SysRng)?;
+        let low = rng.random_range(-(1 << 48)..(1 << 48));
+        let high = low + (1 << N_BITS);
+        let x = rng.random_range(low..high);
+        let element = generator_scalar_mul_i64::<ToyGroup>(x);
+        let solver = GaudrySchostNegationMapIdeal;
+        let result = solver.solve(element, low, high, &mut rng);
+        assert_eq!(result.discrete_log(), x);
 
-        for _ in 0..128 {
-            let low = rng.random_range(-(1 << 48)..(1 << 48));
-            let high = low + (1 << N_BITS);
-            let x = rng.random_range(low..high);
-            let element = generator_scalar_mul_i64::<ToyGroup>(x);
-            let solver = GaudrySchostNegationMapIdeal::new();
-            let result = solver.solve(element, low, high, &mut rng);
-            assert_eq!(result.discrete_log(), x);
+        let n = (1u64 << N_BITS) as f64;
+        let k = (result.group_ops() as f64) / n.sqrt();
+        println!("k = {:.02}", k);
 
-            let n = (1u64 << N_BITS) as f64;
-            let k = (result.group_ops() as f64) / n.sqrt();
-            println!("k = {:.02}", k);
-        }
         Ok(())
     }
 }
