@@ -1,6 +1,8 @@
 use rand::rngs::{SysRng, Xoshiro256PlusPlus};
-use rand::{RngExt, SeedableRng};
+use rand::{Rng, RngExt, SeedableRng};
 use std::ops::Range;
+use crate::dlp::DiscreteLogSolver;
+use crate::group::{generator_scalar_mul_i64, KangarooGroup};
 
 #[derive(Clone, Debug)]
 pub struct Statistics {
@@ -17,7 +19,7 @@ pub struct SampleCollector {
 }
 
 impl SampleCollector {
-    const BOOTSTRAP_RESAMPLES: usize = 20_000;
+    const BOOTSTRAP_RESAMPLES: usize = 64 * 1024;
 
     pub fn push(&mut self, sample: f64) {
         self.samples.push(sample);
@@ -121,6 +123,20 @@ impl SampleCollector {
             (a + b) / 2.0
         }
     }
+}
+
+pub fn run_collect_stats<G: KangarooGroup>(solver: &impl DiscreteLogSolver, bits: u32, iters: usize, rng: &mut impl Rng) -> Statistics {
+    let n = 1 << bits;
+    let mut collector = SampleCollector::default();
+    for _ in 0..iters {
+        let x = rng.random_range(0..n);
+        let element = generator_scalar_mul_i64::<G>(x);
+        let solution = solver.solve(element, 0, n, rng);
+        assert_eq!(solution.discrete_log(), x);
+        let k = solution.group_ops() as f64 / (n as f64).sqrt();
+        collector.push(k);
+    }
+    collector.statistics()
 }
 
 #[cfg(test)]
