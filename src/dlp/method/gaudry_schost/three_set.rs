@@ -4,9 +4,9 @@ use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
 #[derive(Default)]
-pub struct GaudrySchostImprovedFourSetIdeal;
+pub struct ThreeSet;
 
-impl GaudrySchostImprovedFourSetIdeal {
+impl ThreeSet {
     const GAMMA: f64 = 0.588;
     const ALPHA: f64 = Self::GAMMA / 2.0;
 
@@ -21,9 +21,7 @@ impl GaudrySchostImprovedFourSetIdeal {
     fn collision_w1w2(wild1_distance: i64, wild2_distance: i64) -> i64 {
         (wild2_distance - wild1_distance) / 2
     }
-}
 
-impl DiscreteLogSolver for GaudrySchostImprovedFourSetIdeal {
     fn solve_symmetric<G: KangarooGroup>(
         &self,
         element: G,
@@ -41,33 +39,20 @@ impl DiscreteLogSolver for GaudrySchostImprovedFourSetIdeal {
         let mut wilds1 = HashMap::new();
         let mut wilds2 = HashMap::new();
         loop {
-            let tame1_distance = rng.random_range(tame_low..tame_high) / 2 * 2;
-            let tame1 = generator_scalar_mul_i64::<G>(tame1_distance);
-            tames.insert(tame1, tame1_distance);
+            let tame_distance = rng.random_range(tame_low..tame_high);
+            let tame = generator_scalar_mul_i64::<G>(tame_distance);
+            tames.insert(tame, tame_distance);
             group_ops += 1;
-            if let Some(&wild1_distance) = wilds1.get(&tame1) {
-                let discrete_log = Self::collision_tw1(tame1_distance, wild1_distance);
+            if let Some(&wild1_distance) = wilds1.get(&tame) {
+                let discrete_log = Self::collision_tw1(tame_distance, wild1_distance);
                 return Solution::new(discrete_log, group_ops);
             }
-            if let Some(&wild2_distance) = wilds2.get(&tame1) {
-                let discrete_log = Self::collision_tw2(tame1_distance, wild2_distance);
+            if let Some(&wild2_distance) = wilds2.get(&tame) {
+                let discrete_log = Self::collision_tw2(tame_distance, wild2_distance);
                 return Solution::new(discrete_log, group_ops);
             }
 
-            let tame2_distance = rng.random_range(tame_low..tame_high) / 2 * 2 + 1;
-            let tame2 = generator_scalar_mul_i64::<G>(tame2_distance);
-            tames.insert(tame2, tame2_distance);
-            group_ops += 1;
-            if let Some(&wild1_distance) = wilds1.get(&tame2) {
-                let discrete_log = Self::collision_tw1(tame2_distance, wild1_distance);
-                return Solution::new(discrete_log, group_ops);
-            }
-            if let Some(&wild2_distance) = wilds2.get(&tame2) {
-                let discrete_log = Self::collision_tw2(tame2_distance, wild2_distance);
-                return Solution::new(discrete_log, group_ops);
-            }
-
-            let wild1_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
+            let wild1_distance = rng.random_range(wild_low..wild_high);
             let wild1 = element + generator_scalar_mul_i64::<G>(wild1_distance);
             wilds1.insert(wild1, wild1_distance);
             group_ops += 1;
@@ -80,7 +65,7 @@ impl DiscreteLogSolver for GaudrySchostImprovedFourSetIdeal {
                 return Solution::new(discrete_log, group_ops);
             }
 
-            let wild2_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
+            let wild2_distance = rng.random_range(wild_low..wild_high);
             let wild2 = -element + generator_scalar_mul_i64::<G>(wild2_distance);
             wilds2.insert(wild2, wild2_distance);
             group_ops += 1;
@@ -93,6 +78,18 @@ impl DiscreteLogSolver for GaudrySchostImprovedFourSetIdeal {
                 return Solution::new(discrete_log, group_ops);
             }
         }
+    }
+}
+
+impl DiscreteLogSolver for ThreeSet {
+    fn solve<G: KangarooGroup>(&self, element: G, l: i64, h: i64, rng: &mut impl Rng) -> Solution {
+        let n = h - l;
+        let n_half = n / 2;
+        let shift = l + n_half;
+        let element = element - generator_scalar_mul_i64::<G>(shift);
+
+        let solution = self.solve_symmetric(element, n, rng);
+        Solution::new(solution.discrete_log() + shift, solution.group_ops())
     }
 }
 
@@ -113,7 +110,7 @@ mod tests {
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = GaudrySchostImprovedFourSetIdeal;
+        let solver = ThreeSet;
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);
 

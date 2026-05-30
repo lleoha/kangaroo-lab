@@ -1,7 +1,6 @@
-use crate::group::{KangarooGroup, generator_scalar_mul_i64};
+use crate::group::KangarooGroup;
 use rand::Rng;
 
-pub mod jump;
 pub mod method;
 pub mod stats;
 
@@ -28,18 +27,5 @@ impl Solution {
 }
 
 pub trait DiscreteLogSolver {
-    fn solve_symmetric<G: KangarooGroup>(&self, element: G, n: i64, rng: &mut impl Rng)
-    -> Solution;
-
-    fn solve<G: KangarooGroup>(&self, element: G, l: i64, h: i64, rng: &mut impl Rng) -> Solution {
-        assert!(l < h);
-
-        let n = h - l;
-        let mid = (l + h) / 2;
-        let element = element - generator_scalar_mul_i64::<G>(mid);
-        let symmetric_solution = self.solve_symmetric(element, n, rng);
-        let discrete_log = symmetric_solution.discrete_log() + mid;
-        let group_ops = symmetric_solution.group_ops();
-        Solution::new(discrete_log, group_ops)
-    }
+    fn solve<G: KangarooGroup>(&self, element: G, l: i64, h: i64, rng: &mut impl Rng) -> Solution;
 }

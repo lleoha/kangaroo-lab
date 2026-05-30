@@ -2,7 +2,6 @@ use std::hash::Hash;
 
 use group::Group;
 
-pub mod ectoy;
 pub mod toy;
 
 pub trait KangarooGroup: Group + Hash {

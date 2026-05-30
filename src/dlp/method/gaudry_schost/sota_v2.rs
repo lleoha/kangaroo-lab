@@ -4,9 +4,9 @@ use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
 #[derive(Default)]
-pub struct RetiredCoderSotaV2Ideal;
+pub struct SotaV2;
 
-impl RetiredCoderSotaV2Ideal {
+impl SotaV2 {
     fn collision_tw(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
@@ -14,22 +14,18 @@ impl RetiredCoderSotaV2Ideal {
     fn collision_w1w2(wild1_distance: i64, wild2_distance: i64) -> i64 {
         (wild2_distance - wild1_distance) / 2
     }
-}
 
-impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
     fn solve_symmetric<G: KangarooGroup>(
         &self,
         element: G,
         n: i64,
         rng: &mut impl Rng,
     ) -> Solution {
-        let n_half = n / 2;
-
         let mut group_ops = 0;
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
-            let mut tame_distance = rng.random_range(-n_half / 256..n_half / 256);
+            let mut tame_distance = rng.random_range(0..n / 128);
             let mut tame = generator_scalar_mul_i64::<G>(tame_distance);
             if !tame.is_negation_map_representative() {
                 (tame_distance, tame) = (-tame_distance, -tame);
@@ -46,7 +42,7 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
             tames.insert(tame, tame_distance);
 
             for _ in 0..2 {
-                let mut wild_distance = rng.random_range(-n_half..n_half) / 2 * 2;
+                let mut wild_distance = rng.random_range(-n / 2..n / 2) / 2 * 2;
                 let mut wild = element + generator_scalar_mul_i64::<G>(wild_distance);
                 if !wild.is_negation_map_representative() {
                     (wild_distance, wild) = (-wild_distance, -wild);
@@ -77,6 +73,18 @@ impl DiscreteLogSolver for RetiredCoderSotaV2Ideal {
     }
 }
 
+impl DiscreteLogSolver for SotaV2 {
+    fn solve<G: KangarooGroup>(&self, element: G, l: i64, h: i64, rng: &mut impl Rng) -> Solution {
+        let n = h - l;
+        let n_half = n / 2;
+        let shift = l + n_half;
+        let element = element - generator_scalar_mul_i64::<G>(shift);
+
+        let solution = self.solve_symmetric(element, n, rng);
+        Solution::new(solution.discrete_log() + shift, solution.group_ops())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,7 +102,7 @@ mod tests {
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = RetiredCoderSotaV2Ideal;
+        let solver = SotaV2;
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);
 
