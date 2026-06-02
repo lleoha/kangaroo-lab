@@ -3,10 +3,17 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
-#[derive(Default)]
-pub struct Basic;
+pub struct ImprovedNegationMap {
+    alpha: f64,
+}
 
-impl Basic {
+impl ImprovedNegationMap {
+    pub fn new_unchecked(alpha: f64) -> Self {
+        debug_assert!(0.0 < alpha && alpha <= 1.0);
+
+        ImprovedNegationMap { alpha }
+    }
+
     fn collision(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
@@ -18,33 +25,48 @@ impl Basic {
         rng: &mut impl Rng,
     ) -> Solution {
         let n_half = n / 2;
+        let wild_range = ((n_half as f64) * self.alpha).round() as i64;
 
         let mut group_ops = 0;
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
-            let tame_distance = rng.random_range(-n_half..n_half);
-            let tame = generator_scalar_mul_i64::<G>(tame_distance);
+            let mut tame_distance = rng.random_range(-n_half..n_half);
+            let mut tame = generator_scalar_mul_i64::<G>(tame_distance);
+            if !tame.is_negation_map_representative() {
+                (tame_distance, tame) = (-tame_distance, -tame);
+            }
             group_ops += 1;
             if let Some(&wild_distance) = wilds.get(&tame) {
                 let discrete_log = Self::collision(tame_distance, wild_distance);
-                return Solution::new(discrete_log, group_ops);
+                return if generator_scalar_mul_i64::<G>(discrete_log) == element {
+                    Solution::new(discrete_log, group_ops)
+                } else {
+                    Solution::new(-discrete_log, group_ops)
+                };
             }
             tames.insert(tame, tame_distance);
 
-            let wild_distance = rng.random_range(-n_half..n_half);
-            let wild = element + generator_scalar_mul_i64::<G>(wild_distance);
+            let mut wild_distance = rng.random_range(-wild_range..wild_range);
+            let mut wild = element + generator_scalar_mul_i64::<G>(wild_distance);
+            if !wild.is_negation_map_representative() {
+                (wild_distance, wild) = (-wild_distance, -wild);
+            }
+            wilds.insert(wild, wild_distance);
             group_ops += 1;
             if let Some(&tame_distance) = tames.get(&wild) {
                 let discrete_log = Self::collision(tame_distance, wild_distance);
-                return Solution::new(discrete_log, group_ops);
+                return if generator_scalar_mul_i64::<G>(discrete_log) == element {
+                    Solution::new(discrete_log, group_ops)
+                } else {
+                    Solution::new(-discrete_log, group_ops)
+                };
             }
-            wilds.insert(wild, wild_distance);
         }
     }
 }
 
-impl DiscreteLogSolver for Basic {
+impl DiscreteLogSolver for ImprovedNegationMap {
     fn solve<G: KangarooGroup>(&self, element: G, l: i64, h: i64, rng: &mut impl Rng) -> Solution {
         let n = h - l;
         let n_half = n / 2;
@@ -52,7 +74,7 @@ impl DiscreteLogSolver for Basic {
         let element = element - generator_scalar_mul_i64::<G>(shift);
 
         let solution = self.solve_symmetric(element, n, rng);
-        Solution::new(solution.discrete_log + shift, solution.group_ops)
+        Solution::new(solution.discrete_log() + shift, solution.group_ops())
     }
 }
 
@@ -73,7 +95,7 @@ mod tests {
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = Basic;
+        let solver = ImprovedNegationMap::new_unchecked(0.1);
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);
 

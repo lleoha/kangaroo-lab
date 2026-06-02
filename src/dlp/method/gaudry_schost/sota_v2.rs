@@ -3,10 +3,16 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
-#[derive(Default)]
-pub struct SotaV2;
+pub struct SotaV2 {
+    alpha: f64,
+}
 
 impl SotaV2 {
+    pub fn new_unchecked(alpha: f64) -> Self {
+        debug_assert!(0.0 < alpha && alpha <= 1.0);
+        SotaV2 { alpha }
+    }
+
     fn collision_tw(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
@@ -21,11 +27,14 @@ impl SotaV2 {
         n: i64,
         rng: &mut impl Rng,
     ) -> Solution {
+        let tame_range = (((n / 2) as f64) * self.alpha).ceil() as i64;
+        let wild_range = n / 2;
+
         let mut group_ops = 0;
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
-            let mut tame_distance = rng.random_range(0..n / 128);
+            let mut tame_distance = rng.random_range(-tame_range..tame_range);
             let mut tame = generator_scalar_mul_i64::<G>(tame_distance);
             if !tame.is_negation_map_representative() {
                 (tame_distance, tame) = (-tame_distance, -tame);
@@ -42,7 +51,7 @@ impl SotaV2 {
             tames.insert(tame, tame_distance);
 
             for _ in 0..2 {
-                let mut wild_distance = rng.random_range(-n / 2..n / 2) / 2 * 2;
+                let mut wild_distance = rng.random_range(-wild_range..wild_range) / 2 * 2;
                 let mut wild = element + generator_scalar_mul_i64::<G>(wild_distance);
                 if !wild.is_negation_map_representative() {
                     (wild_distance, wild) = (-wild_distance, -wild);
@@ -102,7 +111,7 @@ mod tests {
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = SotaV2;
+        let solver = SotaV2::new_unchecked(0.01);
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);
 

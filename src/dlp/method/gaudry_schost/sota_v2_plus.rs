@@ -3,10 +3,16 @@ use crate::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::{Rng, RngExt};
 use std::collections::HashMap;
 
-#[derive(Default)]
-pub struct SotaV2Plus;
+pub struct SotaV2Plus {
+    alpha: f64,
+}
 
 impl SotaV2Plus {
+    pub fn new_unchecked(alpha: f64) -> Self {
+        debug_assert!(0.0 < alpha && alpha <= 1.0);
+        SotaV2Plus { alpha }
+    }
+
     fn collision_tw(tame_distance: i64, wild_distance: i64) -> i64 {
         tame_distance - wild_distance
     }
@@ -21,19 +27,22 @@ impl SotaV2Plus {
         n: i64,
         rng: &mut impl Rng,
     ) -> Solution {
+        let tame_range = (((n / 2) as f64) * self.alpha).ceil() as i64;
+        let wild_range = n / 2;
+
         let mut group_ops = 0;
         let mut tames = HashMap::new();
         let mut wilds = HashMap::new();
         loop {
             for _ in 0..1 {
-                let mut tame_candidate1_distance = rng.random_range(-n / 128..n / 128);
+                let mut tame_candidate1_distance = rng.random_range(-tame_range..tame_range);
                 let mut tame_candidate1 = generator_scalar_mul_i64::<G>(tame_candidate1_distance);
                 if !tame_candidate1.is_negation_map_representative() {
                     (tame_candidate1_distance, tame_candidate1) =
                         (-tame_candidate1_distance, -tame_candidate1);
                 }
 
-                let mut tame_candidate2_distance = rng.random_range(-n / 128..n / 128);
+                let mut tame_candidate2_distance = rng.random_range(-tame_range..tame_range);
                 let mut tame_candidate2 = generator_scalar_mul_i64::<G>(tame_candidate2_distance);
                 if !tame_candidate2.is_negation_map_representative() {
                     (tame_candidate2_distance, tame_candidate2) =
@@ -41,7 +50,7 @@ impl SotaV2Plus {
                 }
 
                 let (tame_distance, tame) = if (tame_candidate1.footprint() % 2 == 1)
-                    && (tame_candidate2.footprint() % 2 == 0)
+                    && tame_candidate2.footprint().is_multiple_of(2)
                 {
                     (tame_candidate2_distance, tame_candidate2)
                 } else {
@@ -61,7 +70,8 @@ impl SotaV2Plus {
             }
 
             for _ in 0..2 {
-                let mut wild_candidate1_distance = rng.random_range(-n / 2..n / 2) / 2 * 2;
+                let mut wild_candidate1_distance =
+                    rng.random_range(-wild_range..wild_range) / 2 * 2;
                 let mut wild_candidate1 =
                     element + generator_scalar_mul_i64::<G>(wild_candidate1_distance);
                 if !wild_candidate1.is_negation_map_representative() {
@@ -76,7 +86,7 @@ impl SotaV2Plus {
                         (-wild_candidate2_distance, -wild_candidate2);
                 }
                 let (wild_distance, wild) = if (wild_candidate1.footprint() % 2 == 1)
-                    && (wild_candidate2.footprint() % 2 == 0)
+                    && wild_candidate2.footprint().is_multiple_of(2)
                 {
                     (wild_candidate2_distance, wild_candidate2)
                 } else {
@@ -137,7 +147,7 @@ mod tests {
         let high = low + (1 << N_BITS);
         let x = rng.random_range(low..high);
         let element = generator_scalar_mul_i64::<ToyGroup>(x);
-        let solver = SotaV2Plus;
+        let solver = SotaV2Plus::new_unchecked(0.01);
         let result = solver.solve(element, low, high, &mut rng);
         assert_eq!(result.discrete_log(), x);
 
