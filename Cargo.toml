@@ -9,4 +9,4 @@ group = {  version = "0.14.0-pre.0", package = "rustcrypto-group" }
 ff = { version = "0.14.0-pre.0", package = "rustcrypto-ff", features = ["bitvec"]}
 subtle = {  version = "2.6.1", features = ["const-generics"] }
 indicatif = { version = "0.18.4" }
-clap = { version = "4.5.51", features = ["derive"] }
+clap = { version = "4.6.1", features = ["derive"] }
