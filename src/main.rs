@@ -2,18 +2,18 @@ pub mod cli;
 
 use crate::cli::{Job, run_jobs};
 use clap::Parser;
-use discrete_log_research::dlp::method::baby_step_giant_step::{
+use indicatif::{MultiProgress, ProgressStyle};
+use kangaroo_lab::dlp::method::baby_step_giant_step::{
     BabyStepGiantStepBasic, BabyStepGiantStepInterleaved, BabyStepGiantStepNegMap,
 };
-use discrete_log_research::dlp::method::gaudry_schost::{
+use kangaroo_lab::dlp::method::gaudry_schost::{
     GaudrySchostBasicSim, GaudrySchostFourSet, GaudrySchostImprovedNegMap, GaudrySchostNegMap,
     GaudrySchostSotaV2, GaudrySchostSotaV2Plus, GaudrySchostThreeSet,
 };
-use discrete_log_research::dlp::method::pollard_kangaroo::{
+use kangaroo_lab::dlp::method::pollard_kangaroo::{
     PollardKangarooBasic, PollardKangarooFour, PollardKangarooThree,
 };
-use discrete_log_research::group::toy::ToyGroup;
-use indicatif::{MultiProgress, ProgressStyle};
+use kangaroo_lab::group::toy::ToyGroup;
 
 const DEFAULT_RANGE_BITS: u32 = 32;
 const DEFAULT_SAMPLES: usize = 16 * 1024;

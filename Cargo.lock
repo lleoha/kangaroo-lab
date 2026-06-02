@@ -184,18 +184,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "discrete-log-research"
-version = "0.1.0"
-dependencies = [
- "clap",
- "indicatif",
- "rand",
- "rustcrypto-ff",
- "rustcrypto-group",
- "subtle",
-]
-
-[[package]]
 name = "encode_unicode"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -331,6 +319,18 @@ dependencies = [
  "futures-util",
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "kangaroo-lab"
+version = "0.1.1"
+dependencies = [
+ "clap",
+ "indicatif",
+ "rand",
+ "rustcrypto-ff",
+ "rustcrypto-group",
+ "subtle",
 ]
 
 [[package]]

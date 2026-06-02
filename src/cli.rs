@@ -1,7 +1,7 @@
-use discrete_log_research::dlp::DiscreteLogSolver;
-use discrete_log_research::dlp::stats::{SampleCollector, Statistics};
-use discrete_log_research::group::{KangarooGroup, generator_scalar_mul_i64};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use kangaroo_lab::dlp::DiscreteLogSolver;
+use kangaroo_lab::dlp::stats::{SampleCollector, Statistics};
+use kangaroo_lab::group::{KangarooGroup, generator_scalar_mul_i64};
 use rand::rngs::{SysRng, Xoshiro256PlusPlus};
 use rand::{Rng, RngExt, SeedableRng};
 use std::sync::{Arc, RwLock};
