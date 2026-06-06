@@ -16,7 +16,7 @@ use kangaroo_lab::dlp::method::pollard_kangaroo::{
 use kangaroo_lab::group::toy::ToyGroup;
 
 const DEFAULT_RANGE_BITS: u32 = 32;
-const DEFAULT_SAMPLES: usize = 16 * 1024;
+const DEFAULT_SAMPLES: usize = 8 * 1024;
 
 #[derive(Parser)]
 struct Args {
@@ -149,7 +149,7 @@ fn main() {
 
     run_jobs(&jobs, range_bits, samples);
 
-    println!("computing final statistics...");
+    println!("\ncomputing final statistics...");
     print_statistics(&jobs);
 }
 
