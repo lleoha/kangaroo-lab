@@ -8,10 +8,10 @@ The practical question is therefore the leading constant $k$ in $ops(N) \approx 
 
 The code in this repository estimates this constant experimentally for several
 families of interval-DLP algorithms:
-- Pollard kangaroo methods with two, three, and four kangaroos [[GPR10]][GPR10];
+- Pollard kangaroo methods with two, three, and four kangaroos [[GPR10]];
 - Gaudry-Schost collision search variants, including variants using
-  equivalence classes under the negation map [[GPR10]][GPR10] [[GR10]][GR10] [[ZZYLL19]][ZZYLL19] [[RC24]][RC24];
-- baby-step giant-step and variants using the negation map [[GWZ15]][GWZ15].
+  equivalence classes under the negation map [[GPR10]] [[GR10]] [[ZZYLL19]] [[RC24]];
+- baby-step giant-step and variants using the negation map [[GWZ15]].
 
 The emphasis is deliberately narrow: this repository counts abstract group
 operations. It does not attempt to benchmark a production implementation,
@@ -21,7 +21,7 @@ numbers should be read as idealized operation-count measurements.
 
 ## Implementation and Experimental Model
 The implementation is intentionally idealized. Its purpose is to estimate the
-leading group-operation constant. The reported statistics are the mean, standard deviation, 
+leading group-operation constant. The reported statistics are the mean, standard deviation,
 95% confidence interval for the mean, and median of $k$.
 
 The current experiments use a simple additive group over a 63-bit
@@ -113,18 +113,18 @@ walk restarts, region boundaries, and fruitless-cycle handling.
 
 ## References
 
-- [[GPR10]][GPR10] Steven D. Galbraith, John M. Pollard, and Raminder S. Ruprai,
+- [[GPR10]] Steven D. Galbraith, John M. Pollard, and Raminder S. Ruprai,
   "Computing Discrete Logarithms in an Interval".
-- [[GR10]][GR10] Steven D. Galbraith and Raminder S. Ruprai,
+- [[GR10]] Steven D. Galbraith and Raminder S. Ruprai,
   "Using Equivalence Classes to Accelerate Solving the Discrete Logarithm
   Problem in a Short Interval".
-- [[GWZ15]][GWZ15] Steven D. Galbraith, Ping Wang, and Fangguo Zhang,
+- [[GWZ15]] Steven D. Galbraith, Ping Wang, and Fangguo Zhang,
   "Computing Elliptic Curve Discrete Logarithms with Improved Baby-step
   Giant-step Algorithm".
-- [[ZZYLL19]][ZZYLL19] Yuqing Zhu, Jincheng Zhuang, Hairong Yi, Chang Lv, and Dongdai Lin,
+- [[ZZYLL19]] Yuqing Zhu, Jincheng Zhuang, Hairong Yi, Chang Lv, and Dongdai Lin,
   "A variant of the Galbraith-Ruprai algorithm for discrete logarithms with
   improved complexity".
-- [[RC24]][RC24] RetiredC, "Kang-1".
+- [[RC24]] RetiredC, "Kang-1".
 
 [GPR10]: <https://eprint.iacr.org/2010/617.pdf>
 [GR10]: <https://eprint.iacr.org/2010/615.pdf>
