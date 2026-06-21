@@ -2,7 +2,9 @@ mod basic;
 mod four_set;
 mod improved_neg_map;
 mod neg_map;
+pub mod params;
 mod sota_v2;
+mod sota_v2_overhead;
 mod sota_v2_plus;
 mod three_set;
 
@@ -11,5 +13,6 @@ pub use four_set::FourSet as GaudrySchostFourSet;
 pub use improved_neg_map::ImprovedNegationMap as GaudrySchostImprovedNegMap;
 pub use neg_map::NegationMap as GaudrySchostNegMap;
 pub use sota_v2::SotaV2 as GaudrySchostSotaV2;
+pub use sota_v2_overhead::SotaV2Overhead as GaudrySchostSotaV2Overhead;
 pub use sota_v2_plus::SotaV2Plus as GaudrySchostSotaV2Plus;
 pub use three_set::ThreeSet as GaudrySchostThreeSet;

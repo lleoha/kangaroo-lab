@@ -10,3 +10,5 @@ ff = { version = "0.14.0-pre.0", package = "rustcrypto-ff", features = ["bitvec"
 subtle = {  version = "2.6.1", features = ["const-generics"] }
 indicatif = { version = "0.18.4" }
 clap = { version = "4.6.1", features = ["derive"] }
+num-integer = { version = "0.1.46", features = ["i128"]}
+k256 = { version = "0.14.0-rc.11", features = ["arithmetic", "expose-field", "precomputed-tables"] }
