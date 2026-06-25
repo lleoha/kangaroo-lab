@@ -88,7 +88,7 @@ The results below were computed with interval size $N=2^{48}$ and $32768$ iterat
 | Basic two-set            | `GaudrySchostBasicSim`       |                         |         2.080 |   2.072 |   1.107 | [2.060, 2.084] |    1.930 |
 | Improved three-set       | `GaudrySchostThreeSet`       |                         |         1.761 |   1.770 |   0.971 | [1.759, 1.781] |    1.633 |
 | Improved four-set        | `GaudrySchostFourSet`        |                         |         1.661 |   1.659 |   0.915 | [1.649, 1.669] |    1.532 |
-| Six-set                  | `GaudrySchostSixSet`         | $\alpha = \frac{1}{64}  |         1.565 |   1.556 |   0.837 | [1.547, 1.565] |    1.449 |
+| Six-set                  | `GaudrySchostSixSet`         | $\alpha = \frac{1}{64}$ |         1.565 |   1.556 |   0.837 | [1.547, 1.565] |    1.449 |
 | Negation map             | `GaudrySchostNegMap`         |                         |         1.360 |   1.367 |   0.732 | [1.359, 1.375] |    1.274 |
 | Narrow-wild negation map | `GaudrySchostImprovedNegMap` | $\alpha = 0.1$          |         1.275 |   1.274 |   0.677 | [1.267, 1.282] |    1.194 |
 | Narrow-wild negation map | `GaudrySchostImprovedNegMap` | $\alpha = 0.05$         |         1.264 |   1.259 |   0.662 | [1.252, 1.267] |    1.184 |
