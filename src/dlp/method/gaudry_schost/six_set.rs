@@ -35,8 +35,8 @@ impl SixSet {
         let n_half = n / 2;
         let tame_low = (-(n_half as f64) * self.alpha).floor() as i64;
         let tame_high = ((n_half as f64) * self.alpha).ceil() as i64;
-        let wild_low = -n_half;
-        let wild_high = n_half;
+        let wild_low = -n/2;
+        let wild_high = n/2;
 
         let mut group_ops = 0;
         let mut tames = HashMap::new();

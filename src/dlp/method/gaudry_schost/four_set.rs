@@ -65,30 +65,34 @@ impl FourSet {
                 return Solution::new(discrete_log, group_ops);
             }
 
-            let wild1_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
-            let wild1 = element + generator_scalar_mul_i64::<G>(wild1_distance);
-            wilds1.insert(wild1, wild1_distance);
-            group_ops += 1;
-            if let Some(&tame_distance) = tames.get(&wild1) {
-                let discrete_log = Self::collision_tw1(tame_distance, wild1_distance);
-                return Solution::new(discrete_log, group_ops);
-            }
-            if let Some(&wild2_distance) = wilds2.get(&wild1) {
-                let discrete_log = Self::collision_w1w2(wild1_distance, wild2_distance);
-                return Solution::new(discrete_log, group_ops);
+            for _ in 0..2 {
+                let wild1_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
+                let wild1 = element + generator_scalar_mul_i64::<G>(wild1_distance);
+                wilds1.insert(wild1, wild1_distance);
+                group_ops += 1;
+                if let Some(&tame_distance) = tames.get(&wild1) {
+                    let discrete_log = Self::collision_tw1(tame_distance, wild1_distance);
+                    return Solution::new(discrete_log, group_ops);
+                }
+                if let Some(&wild2_distance) = wilds2.get(&wild1) {
+                    let discrete_log = Self::collision_w1w2(wild1_distance, wild2_distance);
+                    return Solution::new(discrete_log, group_ops);
+                }
             }
 
-            let wild2_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
-            let wild2 = -element + generator_scalar_mul_i64::<G>(wild2_distance);
-            wilds2.insert(wild2, wild2_distance);
-            group_ops += 1;
-            if let Some(&tame_distance) = tames.get(&wild2) {
-                let discrete_log = Self::collision_tw2(tame_distance, wild2_distance);
-                return Solution::new(discrete_log, group_ops);
-            }
-            if let Some(&wild1_distance) = wilds1.get(&wild2) {
-                let discrete_log = Self::collision_w1w2(wild1_distance, wild2_distance);
-                return Solution::new(discrete_log, group_ops);
+            for _ in 0..2 {
+                let wild2_distance = rng.random_range(wild_low..wild_high) / 2 * 2;
+                let wild2 = -element + generator_scalar_mul_i64::<G>(wild2_distance);
+                wilds2.insert(wild2, wild2_distance);
+                group_ops += 1;
+                if let Some(&tame_distance) = tames.get(&wild2) {
+                    let discrete_log = Self::collision_tw2(tame_distance, wild2_distance);
+                    return Solution::new(discrete_log, group_ops);
+                }
+                if let Some(&wild1_distance) = wilds1.get(&wild2) {
+                    let discrete_log = Self::collision_w1w2(wild1_distance, wild2_distance);
+                    return Solution::new(discrete_log, group_ops);
+                }
             }
         }
     }
