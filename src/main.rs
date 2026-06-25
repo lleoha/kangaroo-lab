@@ -3,20 +3,13 @@ pub mod cli;
 use crate::cli::{Job, run_jobs};
 use clap::Parser;
 use indicatif::{MultiProgress, ProgressStyle};
-use kangaroo_lab::dlp::method::baby_step_giant_step::{
-    BabyStepGiantStepBasic, BabyStepGiantStepInterleaved, BabyStepGiantStepNegMap,
-};
-use kangaroo_lab::dlp::method::gaudry_schost::{
-    GaudrySchostBasicSim, GaudrySchostFourSet, GaudrySchostImprovedNegMap, GaudrySchostNegMap,
-    GaudrySchostSotaV2, GaudrySchostSotaV2Plus, GaudrySchostThreeSet,
-};
-use kangaroo_lab::dlp::method::pollard_kangaroo::{
-    PollardKangarooBasic, PollardKangarooFour, PollardKangarooThree,
-};
+use kangaroo_lab::dlp::method::baby_step_giant_step::{BabyStepGiantStepBasic, BabyStepGiantStepInterleaved, BabyStepGiantStepNegMap};
+use kangaroo_lab::dlp::method::gaudry_schost::{GaudrySchostBasicSim, GaudrySchostFourSet, GaudrySchostImprovedNegMap, GaudrySchostNegMap, GaudrySchostSixSet, GaudrySchostSotaV2, GaudrySchostSotaV2Plus, GaudrySchostThreeSet};
+use kangaroo_lab::dlp::method::pollard_kangaroo::{PollardKangarooBasic, PollardKangarooFour, PollardKangarooThree};
 use kangaroo_lab::group::toy::ToyGroup;
 
 const DEFAULT_RANGE_BITS: u32 = 32;
-const DEFAULT_SAMPLES: usize = 8 * 1024;
+const DEFAULT_SAMPLES: usize = 1024;
 
 #[derive(Parser)]
 struct Args {
@@ -78,6 +71,13 @@ fn main() {
         Job::new::<ToyGroup>(
             "gaudry-schost four-set",
             GaudrySchostFourSet,
+            samples,
+            &multi_progress,
+            &progress_style,
+        ),
+        Job::new::<ToyGroup>(
+            "gaudry-schost six-set (α = 1/64)",
+            GaudrySchostSixSet::new(1.0 / 64.0),
             samples,
             &multi_progress,
             &progress_style,

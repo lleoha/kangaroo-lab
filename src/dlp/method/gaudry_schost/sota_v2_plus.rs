@@ -49,7 +49,7 @@ impl SotaV2Plus {
                         (-tame_candidate2_distance, -tame_candidate2);
                 }
 
-                let (tame_distance, tame) = if (tame_candidate1.footprint() % 2 == 1)
+                let (tame_distance, tame) = if (!tame_candidate1.footprint().is_multiple_of(2))
                     && tame_candidate2.footprint().is_multiple_of(2)
                 {
                     (tame_candidate2_distance, tame_candidate2)
@@ -85,7 +85,7 @@ impl SotaV2Plus {
                     (wild_candidate2_distance, wild_candidate2) =
                         (-wild_candidate2_distance, -wild_candidate2);
                 }
-                let (wild_distance, wild) = if (wild_candidate1.footprint() % 2 == 1)
+                let (wild_distance, wild) = if (!wild_candidate1.footprint().is_multiple_of(2))
                     && wild_candidate2.footprint().is_multiple_of(2)
                 {
                     (wild_candidate2_distance, wild_candidate2)
